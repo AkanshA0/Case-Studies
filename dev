@@ -1,0 +1,395 @@
+Scenario 1:
+#!/bin/bash
+
+read -p "Directory under which log files are located: " dir
+read -p "Extension of log files: " ex
+read -p "Location of backup directory: " bdir
+
+find $dir -name "*.$ex" | tar -cjf case1_arc.tar $(grep .$ex)
+
+mv case1_arc.tar $bdir/
+
+Scenario 2:
+#!/bin/bash
+
+read -p "Enter location of archived files: " x
+
+find $x -mtime +2 -delete
+
+ 
+ 
+
+Scenario 4:
+
+#!/bin/bash
+
+cat /var/log/httpd/access_log | awk '{print$9}' | sort | uniq -c > /root/DA/mail_file
+
+if ! (crontab -l | grep -Fxq "0 */12 * * * mailx -v -s 'http logs' akankshabansiya2000@gmail.com < /root/DA/mail_file"); then
+
+crontab -l | { cat; echo "0 */12 * * * mailx -v -s 'http logs' akankshabansiya2000@gmail.com < /root/DA/mail_file"; } | crontab -
+
+echo "Script added to Cron"
+
+fi
+
+
+
+Scenario 5:
+#!/bin/bash
+
+read -p "Enter listening port : " listening_port
+
+if [ $( netstat -tnlp | grep $listening_port | wc -l ) -eq 0 ]
+then
+
+echo "not found! , restarting web server..."
+echo "$(date) port $listening_port not enabled" >> /var/log/httpd/er_log
+systemctl restart httpd
+
+fi
+
+if ! (crontab -l | grep -Fxq "*/1 * * * * /root/DA/case5.sh"); then
+
+crontab -l | { cat; echo "*/1 * * * * /root/DA/case5.sh"; } | crontab -
+
+echo "Script added to Cron"
+
+fi
+
+ 
+
+Scenario 6:
+#!/bin/bash
+
+i=0
+b=0
+while [ $i -le 2 ]
+do
+read A
+result= $A
+a=`echo $?`
+echo $a
+if [ $a -eq $b ]; then
+echo "Command is Valid"
+else
+echo "Command is Invalid"
+fi
+((i++))
+Done
+
+ 
+
+Scenario 7:
+#!/bin/bash
+
+read -p "Enter device name: " dname
+read -p "Enter threshold limit in bytes: " dlimit
+
+echo "/dev/$dname"
+
+if [ $( ls /dev/ | grep $dname ) == $dname ]
+then
+echo "$dname device exists"
+
+
+if [ ! $( blockdev --getsize64 /dev/$dname ) -ge $dlimit ]
+then
+echo "$( date ) :  $dname threshold limit $dlimit is greater than size " >> device.log
+fi
+
+if [ $( blockdev --getsize64 /dev/$dname ) -ge $dlimit ]
+then
+
+if [ $( df | grep $dname | wc -l ) -eq 1 ]
+then
+
+if [ $dlimit -ge $( df --output=avail /dev/$dname | tail -n +2 ) ]
+then
+echo "$( date ) :  $dname threshold limit $dlimit reached " >> device.log
+echo "$dname threshold reached!!" >> /etc/motd
+fi
+
+else
+echo "device not mounted !"
+fi
+
+fi
+
+else
+echo "$dname device does not exist"
+echo "$( date ) :  $dname device does not exist " >> device.log
+fi
+
+ 
+
+
+Scenario 8:
+#!/bin/bash
+
+# called bang which indicate that we have to write script ,if anything comes after it doesnot interrupt//
+
+recycle_bin="$HOME/.recycle_bin"    # this command tells us about the location of     
+                                      recycle bin
+
+rm="/bin/rm -r "  # So /bin/rm -r remove file with name filename from your system silently.//
+
+copy="/bin/cp -r "  # Copying a directory, first to a new, and then to an existing 
+                      destination directory
+
+if [ $# -eq 0 ] ; then   # Must have command-line args to demo script//
+
+
+
+echo "ERROR: Please enter the file path to delete." >&2; exit 1; # this command takes 
+                                                                   an argument with                      
+                                                                   path file you want 
+                                                                   to delete
+
+fi
+
+flags=""
+
+while  getopts   "dfiPRrvW"   args; do
+
+case $args in
+
+f ) exec $rm "$@" ;;  # exec lets us exit this script directly.
+
+* ) flags="$flags -$args" ;;  # other flags are for 'rm', not usesac
+
+done
+
+shift $(( $OPTIND - 1 ))
+
+if [ ! -d $recycle_bin ] ; then
+
+mkdir $recycle_bin
+
+fi
+
+for arg; do
+
+newname="$recycle_bin/$(date "+%S.%M.%H.%d.%m").$(basename "$arg")"
+
+if [ -f "$arg" ] ; then
+
+$copy "$arg" "$newname"
+
+elif [ -d "$arg" ] ; then
+
+$copy "$arg" "$newname"
+
+fi
+
+done
+
+exec $rm $flags "$@"
+exit 0
+
+ 
+ 
+                        
+ 
+Scenario 11:
+#!/bin/bash
+
+FILES=/root/DA/arch/*
+
+for f in $FILES
+do
+        # take action on each file. $f store current file name
+  echo "Processing $f"
+        #wide spaced line
+  echo -en '\n'
+        # count of lines and the characters
+  wc $f
+  echo -en '\n'
+        #to get the owner of the file
+  #ls -l $f
+  stat -c "%U" $($f)
+        # counter to indicate the line numbers of the file
+  cat -n $f
+  echo -en '\n'
+
+  echo -en '\n'
+
+  echo -en '\n'
+
+done
+ 
+ 
+
+Scenario 12:
+        #!/bin/bash
+
+        read -p "enter the password: " password
+        read -p "enter the file to be encrypted: " fname
+        name=$(find /root/DA/arch/ -name $fname)
+
+        if [ -f "$name" ]
+        then
+         echo "$name"
+
+         gpg -c --batch --passphrase $password $name
+         rm $name
+        fi
+        if [ -d "$name" ]
+        then
+         for f in "$name"/*;
+         do
+           gpg -c --batch --passphrase $password $f
+           rm $f
+         done
+        fi
+
+ 
+ 
+ 
+Scenario 13:
+      #!/bin/bash
+
+        read -p "enter the password: " password
+
+        read -p "enter the file to be encrypted: " fname
+
+        name=$(find /root/DA/arch/ -name $fname)
+
+        if [ -f "$name" ]
+        then
+
+         if [ ${name: -4} == ".gpg" ]
+
+          then
+
+           filename="${name%.*}"
+
+           result=$(gpg -d --batch --passphrase $password $name)
+
+           echo "$result">>$filename
+
+           rm $name
+
+          fi
+
+        fi
+
+        if [ -d "$name" ]
+
+        then
+
+         for f in "$name"/*;
+
+         do
+
+          if [ ${f: -4} == ".gpg" ]
+
+          then
+
+           filename="${f%.*}"
+
+           result=$(gpg -d --batch --passphrase $password $f)
+
+           echo "$result">>$filename
+
+           rm $f
+
+          fi
+
+         done
+
+        fi
+
+ 
+ 
+
+Scenario 14:
+1.date
+ 
+2.w
+ 
+
+3.last (to print all the users logged in and out)
+ 
+4.df
+ 
+5.free
+ 
+6.top (displays processor activity and tasks managed in real-time)
+ 
+7.netstat (network statistics)
+ 
+8.ss( socket statistics , utility to investigate sockets)
+
+ 
+
+
+Scenario 15:
+#!/bin/bash
+
+downloads_directory="$HOME/Downloads"
+
+if [ -z "$1" ]; then
+
+echo "ERROR: Download List file is not specified in the arguments" >&2;
+
+exit 1;
+
+fi
+
+if ! [ -z "$2" ]; then
+
+downloads_directory=$2
+
+fi
+
+if [ ! -d $downloads_directory ] ; then
+
+mkdir -p $downloads_directory
+
+fi
+
+download_list=$1
+
+cat $download_list | while read url; do
+
+echo "-------------------------------------------------------------------"
+
+echo "$url"
+
+wget -P $downloads_directory $url
+
+done
+
+exit 0
+ 
+
+
+
+
+
+
+
+
+
+
+
+Scenario 17:
+#!/bin/bash
+
+if [ $( ifconfig | grep -o $1 ) == $1 ]
+then
+
+ifconfig $1 | sed '3,$d'
+
+echo " Public IP: "
+
+curl --interface $1 http://ifconfig.co
+
+else
+
+echo "NIC does not exist"
+
+exit 125
+
+fi
